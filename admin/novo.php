@@ -6,6 +6,32 @@ if (!isset($_SESSION['logado']) || $_SESSION['logado'] !== true) {
     exit;
 }
 
+function gerarSlug($texto) {
+    // Tabela de acentos
+    $acentos = [
+        'á' => 'a', 'à' => 'a', 'ã' => 'a', 'â' => 'a', 'ä' => 'a',
+        'é' => 'e', 'è' => 'e', 'ê' => 'e', 'ë' => 'e',
+        'í' => 'i', 'ì' => 'i', 'î' => 'i', 'ï' => 'i',
+        'ó' => 'o', 'ò' => 'o', 'õ' => 'o', 'ô' => 'o', 'ö' => 'o',
+        'ú' => 'u', 'ù' => 'u', 'û' => 'u', 'ü' => 'u',
+        'ç' => 'c',
+        'ñ' => 'n',
+        'Á' => 'a', 'À' => 'a', 'Ã' => 'a', 'Â' => 'a', 'Ä' => 'a',
+        'É' => 'e', 'È' => 'e', 'Ê' => 'e', 'Ë' => 'e',
+        'Í' => 'i', 'Ì' => 'i', 'Î' => 'i', 'Ï' => 'i',
+        'Ó' => 'o', 'Ò' => 'o', 'Õ' => 'o', 'Ô' => 'o', 'Ö' => 'o',
+        'Ú' => 'u', 'Ù' => 'u', 'Û' => 'u', 'Ü' => 'u',
+        'Ç' => 'c',
+        'Ñ' => 'n'
+    ];
+    $texto = strtr($texto, $acentos);
+    $texto = strtolower($texto);
+    $texto = preg_replace('/[^a-z0-9-]/', '-', $texto);
+    $texto = preg_replace('/-+/', '-', $texto);
+    $texto = trim($texto, '-');
+    return $texto;
+}
+
 $mensagem = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -13,8 +39,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $conteudo = $_POST['conteudo'] ?? '';
 
     if (!empty($titulo) && !empty($conteudo)) {
-        // Slug simples por enquanto
-        $slug = strtolower(preg_replace('/[^a-zA-Z0-9-]/', '-', str_replace(' ', '-', $titulo)));
+        $slug = gerarSlug($titulo);
+
+        // Verifica se slug ja existe
+        $check = $conn->prepare("SELECT id FROM posts WHERE slug = ?");
+        $check->bind_param("s", $slug);
+        $check->execute();
+        if ($check->get_result()->num_rows > 0) {
+            $slug .= '-' . time();
+        }
 
         $stmt = $conn->prepare("INSERT INTO posts (titulo, conteudo, slug) VALUES (?, ?, ?)");
         $stmt->bind_param("sss", $titulo, $conteudo, $slug);
