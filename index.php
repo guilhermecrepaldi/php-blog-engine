@@ -1,7 +1,20 @@
 <?php
 require_once 'config.php';
 
-$result = $conn->query("SELECT * FROM posts ORDER BY created_at DESC");
+$pagina = isset($_GET['pagina']) ? (int)$_GET['pagina'] : 1;
+$por_pagina = 5;
+$offset = ($pagina - 1) * $por_pagina;
+
+// Total de posts pra paginacao
+$total_result = $conn->query("SELECT COUNT(*) as total FROM posts");
+$total_posts = $total_result->fetch_assoc()['total'];
+$total_paginas = ceil($total_posts / $por_pagina);
+
+// Buscar posts da pagina atual
+$stmt = $conn->prepare("SELECT * FROM posts ORDER BY created_at DESC LIMIT 5 OFFSET ?");
+$stmt->bind_param("i", $offset);
+$stmt->execute();
+$result = $stmt->get_result();
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -25,6 +38,25 @@ $result = $conn->query("SELECT * FROM posts ORDER BY created_at DESC");
                 </article>
                 <hr>
             <?php endwhile; ?>
+
+            <!-- Paginacao -->
+            <div class="paginacao">
+                <?php if ($pagina > 1): ?>
+                    <a href="?pagina=<?= $pagina - 1 ?>">&laquo; Anterior</a>
+                <?php endif; ?>
+
+                <?php for ($i = 1; $i <= $total_paginas; $i++): ?>
+                    <?php if ($i == $pagina): ?>
+                        <strong><?= $i ?></strong>
+                    <?php else: ?>
+                        <a href="?pagina=<?= $i ?>"><?= $i ?></a>
+                    <?php endif; ?>
+                <?php endfor; ?>
+
+                <?php if ($pagina < $total_paginas): ?>
+                    <a href="?pagina=<?= $pagina + 1 ?>">Próxima &raquo;</a>
+                <?php endif; ?>
+            </div>
         <?php else: ?>
             <p>Nenhum post publicado ainda.</p>
         <?php endif; ?>

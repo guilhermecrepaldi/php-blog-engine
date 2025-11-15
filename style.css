@@ -21,6 +21,10 @@ a {
     color: #0066cc;
 }
 
+a:hover {
+    text-decoration: underline;
+}
+
 article {
     margin-bottom: 20px;
 }
@@ -31,8 +35,52 @@ article {
     margin-bottom: 10px;
 }
 
+.paginacao {
+    margin: 20px 0;
+    text-align: center;
+}
+
+.paginacao a, .paginacao strong {
+    margin: 0 5px;
+    padding: 5px 10px;
+    border: 1px solid #ddd;
+    text-decoration: none;
+}
+
+.paginacao strong {
+    background: #0066cc;
+    color: white;
+    border-color: #0066cc;
+}
+
+.conteudo {
+    margin-top: 20px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table th {
+    background: #f0f0f0;
+    text-align: left;
+}
+
 hr {
     margin: 20px 0;
     border: none;
     border-top: 1px solid #eee;
+}
+
+button, input[type="submit"] {
+    padding: 8px 16px;
+    background: #0066cc;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #0052a3;
 }
